@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <cronentries>
     <cron>
-        <url>/admin/get-queue</url>
+        <url>/get-queue</url>
         <target>beta</target>
         <description>1 min job</description>
         <schedule>every 5 minutes</schedule>
     </cron>
     <cron>
-        <url>/admin/add-queue</url>
+        <url>/add-queue</url>
         <target>beta</target>
         <description>1 min job</description>
         <schedule>every 5 minutes</schedule>

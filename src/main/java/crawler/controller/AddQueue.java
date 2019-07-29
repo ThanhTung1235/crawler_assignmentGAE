@@ -3,6 +3,8 @@ package crawler.controller;
 import com.google.appengine.api.taskqueue.Queue;
 import com.google.appengine.api.taskqueue.QueueFactory;
 import com.google.appengine.api.taskqueue.TaskOptions;
+import com.google.gson.Gson;
+import crawler.entity.CrawlerSource;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -13,22 +15,52 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.logging.Logger;
+
+import static com.googlecode.objectify.ObjectifyService.ofy;
 
 public class AddQueue extends HttpServlet {
-    private static Queue q = QueueFactory.getQueue("queue-green");
+    private static Queue q = QueueFactory.getQueue("queue-article");
+    private static final Logger LOGGER = Logger.getLogger(AddQueue.class.getSimpleName());
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        List<CrawlerSource> crawlerSources = ofy().load().type(CrawlerSource.class).list();
+        if (crawlerSources.size() == 0)
+            return;
 
-        String url = "https://vnexpress.net/";
-        Document document = Jsoup.connect(url).ignoreContentType(true).get();
+        for (CrawlerSource source : crawlerSources) {
+            Document document = Jsoup.connect(source.getUrl()).ignoreContentType(true).get();
 
-        Elements elements = document.select("section>article.list_news");
-        for (Element el : elements) {
-            String link = el.select(".title_news a[title]").attr("href");
-            q.add(TaskOptions.Builder.withMethod(TaskOptions.Method.PULL).payload(link));
+            Elements elements = document.select(source.getLinkSelector());
+            for (Element el : elements) {
+                String linkHref = el.attr("abs:href");
+//                nature link
+                int lastPos;
+                if(linkHref.indexOf("?") > 0) {
+                    lastPos = linkHref.indexOf("?");
+                } else if (linkHref.indexOf("&") > 0){
+                    lastPos = linkHref.indexOf("&");
+                }
+                else if (linkHref.indexOf("#") > 0){
+                    lastPos = linkHref.indexOf("#");
+                }
+                else lastPos = -1;
+
+                if(lastPos != -1)
+                    linkHref = linkHref.substring(0, lastPos);
+
+                LOGGER.info(linkHref);
+                HashMap<String, Object> hashMapQueue = new HashMap<>();
+                hashMapQueue.put("link", linkHref);
+                hashMapQueue.put("sourceId", source.getId());
+                q.add(TaskOptions.Builder.withMethod(TaskOptions.Method.PULL).payload(new Gson().toJson(hashMapQueue)));
+            }
+            resp.getWriter().println("get xong link");
         }
-        resp.getWriter().println("get xong link");
+
     }
 
 }

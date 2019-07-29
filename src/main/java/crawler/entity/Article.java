@@ -3,6 +3,7 @@ package crawler.entity;
 import com.googlecode.objectify.annotation.Entity;
 import com.googlecode.objectify.annotation.Id;
 import com.googlecode.objectify.annotation.Index;
+import crawler.utility.EncryptString;
 
 import java.util.Calendar;
 import java.util.List;
@@ -18,16 +19,16 @@ public class Article {
     private List<String> thumbnail;
     private String author;
     private String description;
-    private long createdAtMLS;
-    private long updatedAtMLS;
-    private long deletedAtMLS;
+    private long sourceId;
+    private String createdAtMLS;
+    private String updatedAtMLS;
+    private String deletedAtMLS;
     @Index
     private int status; // 0.pending | 1. indexed. | -1. deleted.
 
     public Article() {
-        this.createdAtMLS = Calendar.getInstance().getTimeInMillis();
-        this.updatedAtMLS = Calendar.getInstance().getTimeInMillis();
-        this.deletedAtMLS = Calendar.getInstance().getTimeInMillis();
+        this.createdAtMLS = EncryptString.getCurrentTime();
+        this.updatedAtMLS = EncryptString.getCurrentTime();
         this.setStatus(Status.PENDING);
     }
 
@@ -44,94 +45,123 @@ public class Article {
         public int getValue() {
             return value;
         }
+
+        public static Status findByValue(int value) {
+            for (Status status : Status.values()) {
+                if (status.getValue() == value) {
+                    return status;
+                }
+            }
+            return null;
+        }
     }
 
     public String getLink() {
         return link;
     }
 
-    public void setLink(String link) {
+    public Article setLink(String link) {
         this.link = link;
+        return this;
     }
 
     public List<String> getThumbnail() {
         return thumbnail;
     }
 
-    public void setThumbnail(List<String> thumbnail) {
+    public Article setThumbnail(List<String> thumbnail) {
         this.thumbnail = thumbnail;
+        return this;
     }
 
     public String getAuthor() {
         return author;
     }
 
-    public void setAuthor(String author) {
+    public Article setAuthor(String author) {
         this.author = author;
+        return this;
     }
 
     public String getDescription() {
         return description;
     }
 
-    public void setDescription(String description) {
+    public Article setDescription(String description) {
         this.description = description;
+        return this;
     }
 
-    public long getCreatedAtMLS() {
+    public String getCreatedAtMLS() {
         return createdAtMLS;
     }
 
-    public void setCreatedAtMLS(long createdAtMLS) {
+    public Article setCreatedAtMLS(String createdAtMLS) {
         this.createdAtMLS = createdAtMLS;
+        return this;
     }
 
-    public long getUpdatedAtMLS() {
+    public String getUpdatedAtMLS() {
         return updatedAtMLS;
     }
 
-    public void setUpdatedAtMLS(long updatedAtMLS) {
+    public Article setUpdatedAtMLS(String updatedAtMLS) {
         this.updatedAtMLS = updatedAtMLS;
+        return this;
     }
 
-    public long getDeletedAtMLS() {
+    public String getDeletedAtMLS() {
         return deletedAtMLS;
     }
 
-    public void setDeletedAtMLS(long deletedAtMLS) {
+    public Article setDeletedAtMLS(String deletedAtMLS) {
         this.deletedAtMLS = deletedAtMLS;
+        return this;
     }
 
     public int getStatus() {
         return status;
     }
 
-    public void setStatus(Status status) {
+    public Article setStatus(Status status) {
         this.status = status.getValue();
+        return this;
     }
 
     public String getTitle() {
         return title;
     }
 
-    public void setTitle(String title) {
+    public Article setTitle(String title) {
         this.title = title;
+        return this;
     }
 
     public String getContent() {
         return content;
     }
 
-    public void setContent(String content) {
+    public Article setContent(String content) {
         this.content = content;
+        return this;
     }
 
     public long getCategoryId() {
         return categoryId;
     }
 
-    public void setCategoryId(long categoryId) {
+    public long getSourceId() {
+        return sourceId;
+    }
+
+    public Article setSourceId(long sourceId) {
+        this.sourceId = sourceId;
+        return this;
+    }
+
+    public Article setCategoryId(long categoryId) {
         this.categoryId = categoryId;
+        return this;
     }
 
     @Override

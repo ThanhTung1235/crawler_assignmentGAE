@@ -4,13 +4,68 @@
          xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
          version="2.5">
 
+
+    <servlet>
+        <servlet-name>SourceAPI</servlet-name>
+        <servlet-class>crawler.api.article.SourceAPI</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>SourceAPI</servlet-name>
+        <url-pattern>/admin/_api/source</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>AccountRegister</servlet-name>
+        <servlet-class>crawler.api.auth.Register</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>AccountRegister</servlet-name>
+        <url-pattern>/_api/account/register</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>SpecialArticle</servlet-name>
+        <servlet-class>crawler.api.article.SpecialArticle</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>SpecialArticle</servlet-name>
+        <url-pattern>/_api/special-article</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>AccountLogin</servlet-name>
+        <servlet-class>crawler.api.auth.Login</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>AccountLogin</servlet-name>
+        <url-pattern>/_api/account/login</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>ArticleAPI</servlet-name>
+        <servlet-class>crawler.api.article.ArticleAPI</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>ArticleAPI</servlet-name>
+        <url-pattern>/_api/article</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>ArticleAdminAPI</servlet-name>
+        <servlet-class>crawler.api.article.ArticleAdminAPI</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>ArticleAdminAPI</servlet-name>
+        <url-pattern>/admin/_api/article</url-pattern>
+    </servlet-mapping>
+
     <servlet>
         <servlet-name>CategoryAPI</servlet-name>
-        <servlet-class>crawler.api.CategoryAPI</servlet-class>
+        <servlet-class>crawler.api.article.CategoryAPI</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>CategoryAPI</servlet-name>
-        <url-pattern>/_api/category</url-pattern>
+        <url-pattern>/admin/_api/category</url-pattern>
     </servlet-mapping>
 
     <servlet>
@@ -19,7 +74,7 @@
     </servlet>
     <servlet-mapping>
         <servlet-name>AddQueue</servlet-name>
-        <url-pattern>/admin/add-queue</url-pattern>
+        <url-pattern>/add-queue</url-pattern>
     </servlet-mapping>
 
     <servlet>
@@ -28,7 +83,7 @@
     </servlet>
     <servlet-mapping>
         <servlet-name>GetQueue</servlet-name>
-        <url-pattern>/admin/get-queue</url-pattern>
+        <url-pattern>/get-queue</url-pattern>
     </servlet-mapping>
 
     <filter>
@@ -47,6 +102,24 @@
     <filter-mapping>
         <filter-name>MyObjectifyFilter</filter-name>
         <url-pattern>*</url-pattern>
+    </filter-mapping>
+
+    <filter>
+        <filter-name>CorsFilter</filter-name>
+        <filter-class>crawler.filter.CorsFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>CorsFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
+    <filter>
+        <filter-name>AuthFilter</filter-name>
+        <filter-class>crawler.filter.AuthenticationFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>AuthFilter</filter-name>
+        <url-pattern>/admin/*</url-pattern>
     </filter-mapping>
 
 </web-app>

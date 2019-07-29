@@ -5,18 +5,19 @@ import com.google.appengine.api.taskqueue.QueueFactory;
 import com.google.appengine.api.taskqueue.TaskHandle;
 import crawler.cfg.Config;
 import crawler.entity.Article;
+import crawler.entity.CrawlerSource;
+import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import sun.net.www.content.image.png;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -24,24 +25,32 @@ import java.util.concurrent.TimeUnit;
 import static com.googlecode.objectify.ObjectifyService.ofy;
 
 public class GetQueue extends HttpServlet {
+    private static Queue q = QueueFactory.getQueue("queue-article");
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        Queue q = QueueFactory.getQueue("queue-green");
         List<TaskHandle> tasks = q.leaseTasks(30, TimeUnit.SECONDS, 1);
         if (tasks.size() > 0) {
             TaskHandle task = tasks.get(0);
-            String link = new String(task.getPayload());
+            String taskContent = new String(task.getPayload());
+            JSONObject jsonObject = new JSONObject(taskContent);
+            String link = jsonObject.getString("link");
+            long sourceId = jsonObject.getLong("sourceId");
+            CrawlerSource crawlerSource = ofy().load().type(CrawlerSource.class).id(sourceId).now();
+            if (crawlerSource == null) {
+                return;
+            }
             Document document = Jsoup.connect(link).ignoreContentType(true).get();
 
             Article article = new Article();
             article.setLink(link);
-            article.setTitle(document.select(".title_news_detail").text());
-            article.setDescription(document.select(".sidebar_1 .description").text());
-            article.setContent(document.select(".content_detail p.Normal").text());
-            article.setAuthor(document.select(".author_mail").text());
+            article.setTitle(document.select(crawlerSource.getTitleSelector()).text());
+            article.setDescription(document.select(crawlerSource.getDescriptionSelector()).text());
+            article.setContent(document.select(crawlerSource.getContentSelector()).text());
+            article.setAuthor(document.select(crawlerSource.getAuthorSelector()).text());
             article.setCategoryId(Config.detectCategory(link));
-            Elements elements = document.select(".content_detail img");
+            article.setSourceId(crawlerSource.getId());
+            Elements elements = document.select(crawlerSource.getThumbnailSelector());
             List<String> images = new ArrayList<>();
             for (Element element : elements) {
                 images.add(element.attr("src"));
@@ -54,8 +63,28 @@ public class GetQueue extends HttpServlet {
     }
 
     public static void main(String[] args) throws IOException {
-        String url = "https://vnexpress.net/thoi-su";
-//        System.out.println(detectCategory(url));;
+//        Elements elements = document.select(".content_detail img[src$=.jpg]");
+
+        Document document = Jsoup.connect("https://vnexpress.net").ignoreContentType(true).get();
+        Elements elements = document.select(".list_news h4.title_news a[title]");
+        for (Element element : elements) {
+            String linkHref = element.attr("abs:href");
+            int lastPos;
+            if(linkHref.indexOf("?") > 0) {
+                lastPos = linkHref.indexOf("?");
+            } else if (linkHref.indexOf("&") > 0){
+                lastPos = linkHref.indexOf("&");
+            }
+            else if (linkHref.indexOf("#") > 0){
+                lastPos = linkHref.indexOf("#");
+            }
+            else lastPos = -1;
+
+            if(lastPos != -1)
+                linkHref = linkHref.substring(0, lastPos);
+
+            System.out.println(linkHref);
+        }
     }
 
 

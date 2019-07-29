@@ -1,4 +1,4 @@
-package crawler.controller;
+package crawler.api.article;
 import com.google.gson.Gson;
 import com.googlecode.objectify.Key;
 import crawler.entity.Category;
@@ -14,7 +14,7 @@ import java.io.IOException;
 
 import static com.googlecode.objectify.ObjectifyService.ofy;
 
-public class SourceController extends HttpServlet{
+public class SourceAPI extends HttpServlet{
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         resp.setContentType("application/json");

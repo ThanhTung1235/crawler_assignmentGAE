@@ -2,6 +2,7 @@ package crawler.api.article;
 
 import com.google.gson.Gson;
 import com.googlecode.objectify.Key;
+import crawler.cfg.Config;
 import crawler.entity.Article;
 import crawler.entity.JsonObjApi;
 import crawler.utility.EncryptString;
@@ -16,15 +17,47 @@ import java.util.List;
 
 import static com.googlecode.objectify.ObjectifyService.ofy;
 
-public class ArticleAPI extends HttpServlet {
+public class ArticleAdminAPI extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         resp.setContentType("application/json");
         resp.setCharacterEncoding("UTF-8");
-        List<Article> articles = ofy().load().type(Article.class).list();
+        String category = req.getParameter("ct");
+        String id = req.getParameter("id");
+        if (category != null) {
+            int categoryId = Config.detectCategory("///" + category);
+            System.out.println(categoryId);
+            List<Article> articles = ofy().load().type(Article.class).filter("categoryId", categoryId).list();
+            resp.getWriter().println(new JsonObjApi().setStatus(HttpServletResponse.SC_OK)
+                    .setMessage(" ")
+                    .setData(articles)
+                    .toJsonString());
+        } else if (id != null) {
+            Article article = ofy().load().type(Article.class).id(id).now();
+            resp.getWriter().println(new JsonObjApi().setStatus(HttpServletResponse.SC_OK)
+                    .setMessage(" ")
+                    .setData(article)
+                    .toJsonString());
+
+        } else {
+            List<Article> articles = ofy().load().type(Article.class).list();
+            resp.getWriter().println(new JsonObjApi().setStatus(HttpServletResponse.SC_OK)
+                    .setMessage(" ")
+                    .setData(articles)
+                    .toJsonString());
+        }
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        resp.setContentType("application/json");
+        resp.setCharacterEncoding("UTF-8");
+        String content = EncryptString.convertInputStreamToString(req.getInputStream());
+        Article article = new Gson().fromJson(content, Article.class);
+        Key<Article> articleKey = ofy().save().entity(article).now();
         resp.getWriter().println(new JsonObjApi().setStatus(HttpServletResponse.SC_OK)
-                .setMessage(" ")
-                .setData(articles)
+                .setMessage("Save success!")
+                .setData(articleKey)
                 .toJsonString());
     }
 

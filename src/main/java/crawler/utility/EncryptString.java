@@ -5,6 +5,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.UUID;
 
 public class EncryptString {
@@ -17,7 +20,8 @@ public class EncryptString {
         }
         return result.toString(StandardCharsets.UTF_8.name());
     }
-    public static String generateToken(){
+
+    public static String generateToken() {
         UUID uuid = UUID.randomUUID();
         String intitString = uuid.toString();
         String[] tokenSplit = intitString.split("-");
@@ -27,6 +31,7 @@ public class EncryptString {
         }
         return token.toString();
     }
+
     public static String generateSalt() {
         UUID uuid = UUID.randomUUID();
         String salt = uuid.toString();
@@ -42,6 +47,12 @@ public class EncryptString {
             stringBuilder.append(String.format("%x", b));
         }
         return stringBuilder.toString();
+    }
+
+    public static String getCurrentTime() {
+        DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+        Date date = new Date();
+        return dateFormat.format(date);
     }
 
 }

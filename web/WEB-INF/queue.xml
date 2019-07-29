@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <queue-entries>
     <queue>
-        <name>queue-green</name>
+        <name>queue-article</name>
         <mode>pull</mode>
     </queue>
 </queue-entries>
