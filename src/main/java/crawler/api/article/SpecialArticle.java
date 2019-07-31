@@ -33,6 +33,7 @@ public class SpecialArticle extends HttpServlet {
         String contentSelector = jsonObject.getString("contentSelector");
         String thumbnailSelector = jsonObject.getString("thumbnailSelector");
         String categorySelector = jsonObject.getString("categorySelector");
+        String status = jsonObject.getString("status");
 
         Document document = Jsoup.connect(url).ignoreContentType(true).get();
         Article article = new Article();
@@ -41,6 +42,7 @@ public class SpecialArticle extends HttpServlet {
         article.setContent(document.select(contentSelector).text());
         article.setAuthor("");
         article.setCategoryId(Long.parseLong(categorySelector));
+        article.setStatus(Article.Status.findByValue(Integer.parseInt(status)));
         Elements elements = document.select(thumbnailSelector);
         List<String> images = new ArrayList<>();
         for (Element element : elements) {

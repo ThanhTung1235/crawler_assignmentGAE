@@ -2,7 +2,9 @@ package crawler.api.article;
 
 import com.google.gson.Gson;
 import com.googlecode.objectify.Key;
+import com.googlecode.objectify.cmd.Query;
 import crawler.cfg.Config;
+import crawler.entity.Account;
 import crawler.entity.Article;
 import crawler.entity.JsonObjApi;
 import crawler.utility.EncryptString;
@@ -24,10 +26,10 @@ public class ArticleAdminAPI extends HttpServlet {
         resp.setCharacterEncoding("UTF-8");
         String category = req.getParameter("ct");
         String id = req.getParameter("id");
+        String status = req.getParameter("status");
         if (category != null) {
-            int categoryId = Config.detectCategory("///" + category);
-            System.out.println(categoryId);
-            List<Article> articles = ofy().load().type(Article.class).filter("categoryId", categoryId).list();
+            System.out.println(Long.parseLong(category));
+            List<Article> articles = ofy().load().type(Article.class).filter("categoryId", Long.parseLong(category)).list();
             resp.getWriter().println(new JsonObjApi().setStatus(HttpServletResponse.SC_OK)
                     .setMessage(" ")
                     .setData(articles)
@@ -39,8 +41,15 @@ public class ArticleAdminAPI extends HttpServlet {
                     .setData(article)
                     .toJsonString());
 
+        } else if (status != null) {
+            List<Article> articles = ofy().load().type(Article.class).filter("status", Long.parseLong(status)).list();
+            resp.getWriter().println(new JsonObjApi().setStatus(HttpServletResponse.SC_OK)
+                    .setMessage(" ")
+                    .setData(articles)
+                    .toJsonString());
+
         } else {
-            List<Article> articles = ofy().load().type(Article.class).list();
+            List<Article> articles = ofy().load().type(Article.class).filter("status >=", 0).list();
             resp.getWriter().println(new JsonObjApi().setStatus(HttpServletResponse.SC_OK)
                     .setMessage(" ")
                     .setData(articles)

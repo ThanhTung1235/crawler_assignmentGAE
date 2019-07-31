@@ -29,7 +29,7 @@
     </servlet>
     <servlet-mapping>
         <servlet-name>SpecialArticle</servlet-name>
-        <url-pattern>/_api/special-article</url-pattern>
+        <url-pattern>/admin/_api/special-article</url-pattern>
     </servlet-mapping>
 
     <servlet>
